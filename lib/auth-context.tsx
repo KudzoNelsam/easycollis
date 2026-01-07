@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
-import type { UserRole, User, GPProfile, LoginResult, AuthContextType, RegisterData } from "@/lib/types"
+import type { UserRole, User, GPProfile, LoginResult, AuthContextType, RegisterData } from "@/lib/models"
 
 // TEST_ACCOUNTS moved to auth service - authService handles mock logic and storage
 

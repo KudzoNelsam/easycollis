@@ -1,5 +1,5 @@
 import { USE_MOCKS } from "../config"
-import type { GP } from "@/lib/types"
+import type { GP } from "@/lib/models"
 import { MOCK_GPS, POPULAR_DESTINATIONS } from "../mocks/data"
 
 export async function listGPs(): Promise<GP[]> {

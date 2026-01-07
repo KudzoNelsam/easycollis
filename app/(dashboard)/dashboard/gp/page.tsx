@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/lib/auth-context"
 import { MOCK_CONVERSATIONS } from "@/lib/data"
-import type { GPProfile } from "@/lib/types"
+import type { GPProfile } from "@/lib/models"
 import {
   CreditCard,
   MessageSquare,

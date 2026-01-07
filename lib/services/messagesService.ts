@@ -1,5 +1,5 @@
 import { USE_MOCKS } from "../config"
-import type { Conversation, Message } from "@/lib/types"
+import type { Conversation, Message } from "@/lib/models"
 import { MOCK_CONVERSATIONS, MOCK_MESSAGES } from "../mocks/data"
 
 export async function getConversationsForUser(userId: string): Promise<Conversation[]> {

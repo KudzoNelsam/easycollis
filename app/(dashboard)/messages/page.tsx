@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth-context"
 import { getConversationsForUser, getMessages, sendMessage, createConversation } from "@/lib/services/messagesService"
 import { getGP } from "@/lib/services/gpService"
-import type { Conversation, Message, UserRole, GP } from "@/lib/types"
+import type { Conversation, Message, UserRole, GP } from "@/lib/models"
 import { Send, Package, ArrowLeft } from "lucide-react"
 
 export default function MessagesContent() {
