@@ -57,8 +57,11 @@ export function SearchForm({ variant = "hero" }: SearchFormProps) {
     if (city) params.set("city", city)
     const q = params.toString()
 
+    // Do not navigate when all fields are empty — avoid redirecting from `/` to `/search`.
+    if (!q) return
+
     const t = setTimeout(() => {
-      router.push(q ? `/search?${q}` : "/search")
+      router.push(`/search?${q}`)
     }, 350)
 
     return () => clearTimeout(t)
