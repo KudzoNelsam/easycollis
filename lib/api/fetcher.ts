@@ -28,6 +28,11 @@ export async function httpGet<T>(path: string, opts: RequestOptions = {}): Promi
 
 export async function httpPost<T>(path: string, body?: unknown, opts: RequestOptions = {}): Promise<T> {
   const url = buildUrl(path, opts.query)
+  try {
+    console.debug("httpPost: POST", url, "body:", body)
+  } catch (e) {
+    // avoid throwing in environments where console.debug isn't allowed
+  }
   const res = await fetch(url, { method: "POST", body: body ? JSON.stringify(body) : undefined, headers: { "Content-Type": "application/json" }, ...opts })
   if (!res.ok) throw new Error(`HTTP ${res.status} - ${res.statusText}`)
   return parseResponse(res) as Promise<T>

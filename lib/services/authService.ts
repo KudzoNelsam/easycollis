@@ -68,7 +68,9 @@ export async function login(email: string, password: string): Promise<LoginResul
 
   // Try backend, but gracefully fall back to mocks if the call fails or returns no user
   try {
+    console.debug("authService.login: attempting backend POST", ENDPOINTS.auth.login, { email: normalized, password })
     const res = await httpPost<any>(ENDPOINTS.auth.login, { email: normalized, password })
+    console.debug("authService.login: backend response", res)
     const user = res?.user ?? res
     if (user && user.email) {
       localStorage.setItem("easycollis_user", JSON.stringify(user))
@@ -123,7 +125,9 @@ export async function register(data: { email: string; password: string; name: st
 
   // Try backend register; if it fails, fall back to mock/local creation
   try {
+    console.debug("authService.register: attempting backend POST", ENDPOINTS.auth.register, data)
     const res = await httpPost<any>(ENDPOINTS.auth.register, data)
+    console.debug("authService.register: backend response", res)
     const user = res?.user ?? res
     if (user && user.email) {
       localStorage.setItem("easycollis_user", JSON.stringify(user))
