@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,9 +15,23 @@ interface SearchFormProps {
 
 export function SearchForm({ variant = "hero" }: SearchFormProps) {
   const router = useRouter()
-  const [destination, setDestination] = useState("")
-  const [date, setDate] = useState("")
-  const [city, setCity] = useState("")
+  const searchParams = useSearchParams()
+
+  // Initialize inputs from the URL so visiting /search?destination=Paris preserves the query
+  const [destination, setDestination] = useState(() => searchParams.get("destination") || "")
+  const [date, setDate] = useState(() => searchParams.get("date") || "")
+  const [city, setCity] = useState(() => searchParams.get("city") || "")
+
+  // Keep inputs in sync when the URL changes (back/forward, external links)
+  useEffect(() => {
+    const d = searchParams.get("destination") || ""
+    const dt = searchParams.get("date") || ""
+    const c = searchParams.get("city") || ""
+
+    setDestination((prev) => (prev !== d ? d : prev))
+    setDate((prev) => (prev !== dt ? dt : prev))
+    setCity((prev) => (prev !== c ? c : prev))
+  }, [searchParams.toString()])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
