@@ -83,7 +83,7 @@ function SearchContent() {
     }
 
     return results
-  }, [destination, date, city, sortBy])
+  }, [destination, date, city, sortBy, gps])
 
   if (loading) {
     return (
