@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect, Suspense } from "react"
+import { useState, useMemo, useEffect, useRef, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
@@ -17,6 +17,8 @@ function SearchContent() {
   const [sortBy, setSortBy] = useState("date")
   const [gps, setGps] = useState<GP[]>([])
   const [loading, setLoading] = useState(true)
+  const mountedRef = useRef(false)
+  const [justUpdated, setJustUpdated] = useState(false)
 
   const destination = searchParams.get("destination") || ""
   const date = searchParams.get("date") || ""
@@ -40,6 +42,19 @@ function SearchContent() {
       mounted = false
     }
   }, [])
+
+  // Show a small transient indicator when search params change
+  useEffect(() => {
+    const key = searchParams.toString()
+    if (!mountedRef.current) {
+      mountedRef.current = true
+      return
+    }
+
+    setJustUpdated(true)
+    const t = setTimeout(() => setJustUpdated(false), 1500)
+    return () => clearTimeout(t)
+  }, [searchParams.toString()])
 
   const filteredGPs = useMemo(() => {
     let results = [...gps]
@@ -92,8 +107,13 @@ function SearchContent() {
       <section className="py-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-6">
-            <p className="text-muted-foreground">
-              {filteredGPs.length} GP{filteredGPs.length > 1 ? "s" : ""} trouvé{filteredGPs.length > 1 ? "s" : ""}
+            <p className="text-muted-foreground flex items-center gap-3">
+              <span>
+                {filteredGPs.length} GP{filteredGPs.length > 1 ? "s" : ""} trouvé{filteredGPs.length > 1 ? "s" : ""}
+              </span>
+              {justUpdated && (
+                <span className="inline-block rounded-full bg-green-50 text-green-700 text-xs px-2 py-0.5">Résultats mis à jour</span>
+              )}
             </p>
             <div className="flex items-center gap-2">
               <Label htmlFor="sort" className="text-sm text-muted-foreground">
