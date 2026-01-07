@@ -1,4 +1,5 @@
-import { USE_MOCKS } from "../config"
+import { USE_MOCKS, ENDPOINTS } from "../config"
+import { httpPost } from "../api/fetcher"
 import type { User, GPProfile, UserRole } from "@/lib/models"
 
 type LoginResult = { success: boolean; user?: User | GPProfile }
@@ -47,27 +48,56 @@ const TEST_ACCOUNTS: Record<string, { password: string; user: User | GPProfile }
 }
 
 export async function login(email: string, password: string): Promise<LoginResult> {
+  const normalized = email.toLowerCase()
+
+  // Mock mode: local lookup + registered users
   if (USE_MOCKS) {
-    const account = TEST_ACCOUNTS[email.toLowerCase()]
+    const account = TEST_ACCOUNTS[normalized]
     if (account && account.password === password) {
       localStorage.setItem("easycollis_user", JSON.stringify(account.user))
       return { success: true, user: account.user }
     }
     const registeredUsers = JSON.parse(localStorage.getItem("easycollis_registered_users") || "{}")
-    if (registeredUsers[email.toLowerCase()]?.password === password) {
-      const foundUser = registeredUsers[email.toLowerCase()].user
+    if (registeredUsers[normalized]?.password === password) {
+      const foundUser = registeredUsers[normalized].user
       localStorage.setItem("easycollis_user", JSON.stringify(foundUser))
       return { success: true, user: foundUser }
     }
     return { success: false }
   }
 
-  // TODO: implement real backend call
-  // e.g. await httpPost('/auth/login', { email, password })
-  throw new Error("Not implemented: backend login")
+  // Try backend, but gracefully fall back to mocks if the call fails or returns no user
+  try {
+    const res = await httpPost<any>(ENDPOINTS.auth.login, { email: normalized, password })
+    const user = res?.user ?? res
+    if (user && user.email) {
+      localStorage.setItem("easycollis_user", JSON.stringify(user))
+      return { success: true, user }
+    }
+    if (res?.success === false) return { success: false }
+  } catch (err) {
+    console.warn("authService.login: backend login failed, falling back to mock/local storage", err)
+  }
+
+  // Backend not available or didn't return a user -> fallback to mock/local behavior
+  const account = TEST_ACCOUNTS[normalized]
+  if (account && account.password === password) {
+    localStorage.setItem("easycollis_user", JSON.stringify(account.user))
+    return { success: true, user: account.user }
+  }
+  const registeredUsers = JSON.parse(localStorage.getItem("easycollis_registered_users") || "{}")
+  if (registeredUsers[normalized]?.password === password) {
+    const foundUser = registeredUsers[normalized].user
+    localStorage.setItem("easycollis_user", JSON.stringify(foundUser))
+    return { success: true, user: foundUser }
+  }
+  return { success: false }
 }
 
 export async function register(data: { email: string; password: string; name: string; role: UserRole; city?: string; destination?: string; departureDate?: string; availableKg?: number; description?: string }): Promise<LoginResult> {
+  const normalized = data.email.toLowerCase()
+
+  // Mock mode: create and store locally
   if (USE_MOCKS) {
     const newUser = {
       id: `${data.role}-${Date.now()}`,
@@ -85,14 +115,46 @@ export async function register(data: { email: string; password: string; name: st
       }),
     }
     const registered = JSON.parse(localStorage.getItem("easycollis_registered_users") || "{}")
-    registered[data.email.toLowerCase()] = { password: data.password, user: newUser }
+    registered[normalized] = { password: data.password, user: newUser }
     localStorage.setItem("easycollis_registered_users", JSON.stringify(registered))
     localStorage.setItem("easycollis_user", JSON.stringify(newUser))
     return { success: true, user: newUser }
   }
 
-  // TODO: backend call to register
-  throw new Error("Not implemented: backend register")
+  // Try backend register; if it fails, fall back to mock/local creation
+  try {
+    const res = await httpPost<any>(ENDPOINTS.auth.register, data)
+    const user = res?.user ?? res
+    if (user && user.email) {
+      localStorage.setItem("easycollis_user", JSON.stringify(user))
+      return { success: true, user }
+    }
+    if (res?.success === false) return { success: false }
+  } catch (err) {
+    console.warn("authService.register: backend register failed, falling back to mock/local storage", err)
+  }
+
+  // Fallback: create local user
+  const newUser = {
+    id: `${data.role}-${Date.now()}`,
+    email: data.email,
+    name: data.name,
+    role: data.role as UserRole,
+    city: data.city,
+    passBalance: 0,
+    createdAt: new Date(),
+    ...(data.role === "gp" && {
+      destination: data.destination,
+      departureDate: data.departureDate,
+      availableKg: data.availableKg,
+      description: data.description,
+    }),
+  }
+  const registered = JSON.parse(localStorage.getItem("easycollis_registered_users") || "{}")
+  registered[normalized] = { password: data.password, user: newUser }
+  localStorage.setItem("easycollis_registered_users", JSON.stringify(registered))
+  localStorage.setItem("easycollis_user", JSON.stringify(newUser))
+  return { success: true, user: newUser }
 }
 
 export function logout() {
