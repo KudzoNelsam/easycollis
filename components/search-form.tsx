@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,8 +25,30 @@ export function SearchForm({ variant = "hero" }: SearchFormProps) {
     if (destination) params.set("destination", destination)
     if (date) params.set("date", date)
     if (city) params.set("city", city)
-    router.push(`/search?${params.toString()}`)
+    const q = params.toString()
+    router.push(q ? `/search?${q}` : "/search")
   }
+
+  // Auto-search on input change (debounced). Skip initial mount to avoid immediate push.
+  const mountedRef = useRef(false)
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true
+      return
+    }
+
+    const params = new URLSearchParams()
+    if (destination) params.set("destination", destination)
+    if (date) params.set("date", date)
+    if (city) params.set("city", city)
+    const q = params.toString()
+
+    const t = setTimeout(() => {
+      router.push(q ? `/search?${q}` : "/search")
+    }, 350)
+
+    return () => clearTimeout(t)
+  }, [destination, date, city, router])
 
   if (variant === "hero") {
     return (
@@ -59,10 +81,7 @@ export function SearchForm({ variant = "hero" }: SearchFormProps) {
               className="border-0 bg-transparent focus-visible:ring-0 p-0"
             />
           </div>
-          <Button type="submit" size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground px-8">
-            <Search className="h-5 w-5 md:mr-2" />
-            <span className="hidden md:inline">Rechercher</span>
-          </Button>
+
         </div>
       </form>
     )
@@ -105,10 +124,7 @@ export function SearchForm({ variant = "hero" }: SearchFormProps) {
           </div>
         </div>
       </div>
-      <Button type="submit" className="w-full md:w-auto bg-primary hover:bg-primary/90">
-        <Search className="h-4 w-4 mr-2" />
-        Rechercher
-      </Button>
+
     </form>
   )
 }
