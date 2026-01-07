@@ -3,35 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
-import type { UserRole, User, GPProfile } from "@/lib/types"
-
-
-
-interface LoginResult {
-  success: boolean
-  user?: User | GPProfile
-}
-
-interface AuthContextType {
-  user: User | GPProfile | null
-  login: (email: string, password: string) => Promise<LoginResult>
-  register: (data: RegisterData) => Promise<LoginResult>
-  logout: () => void
-  updatePassBalance: (amount: number) => void
-  isLoading: boolean
-}
-
-interface RegisterData {
-  email: string
-  password: string
-  name: string
-  role: UserRole
-  city?: string
-  destination?: string
-  departureDate?: string
-  availableKg?: number
-  description?: string
-}
+import type { UserRole, User, GPProfile, LoginResult, AuthContextType, RegisterData } from "@/lib/types"
 
 // TEST_ACCOUNTS moved to auth service - authService handles mock logic and storage
 
