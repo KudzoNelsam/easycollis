@@ -1,4 +1,4 @@
-import { USE_MOCKS } from "../api/config"
+import { USE_MOCKS } from "../config"
 import type { User, GPProfile, UserRole } from "@/lib/models"
 
 type LoginResult = { success: boolean; user?: User | GPProfile }
