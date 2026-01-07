@@ -23,10 +23,22 @@ function SearchContent() {
   const city = searchParams.get("city") || ""
 
   useEffect(() => {
-    listGPs().then((data) => {
-      setGps(data)
-      setLoading(false)
-    })
+    let mounted = true
+    listGPs()
+      .then((data) => {
+        if (!mounted) return
+        setGps(data)
+      })
+      .catch((err) => {
+        console.error("Failed to load GPs:", err)
+      })
+      .finally(() => {
+        if (!mounted) return
+        setLoading(false)
+      })
+    return () => {
+      mounted = false
+    }
   }, [])
 
   const filteredGPs = useMemo(() => {
