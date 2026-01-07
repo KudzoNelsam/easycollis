@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Navbar } from "@/components/navbar"
@@ -18,6 +18,8 @@ export default function GPDetailPage() {
   const params = useParams()
   const id = params.id as string
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
   const { user, updatePassBalance } = useAuth()
   const { toast } = useToast()
   const [gp, setGp] = useState<GP | undefined>(undefined)
@@ -91,7 +93,8 @@ export default function GPDetailPage() {
       title: "PASS utilisé",
       description: "Vous pouvez maintenant contacter ce GP.",
     })
-    router.push(`/messages?new=${gp.id}`)
+    const returnTo = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname
+    router.push(`/messages?new=${gp.id}&returnTo=${encodeURIComponent(returnTo)}`)
   }
 
   return (
@@ -101,7 +104,7 @@ export default function GPDetailPage() {
       <main className="flex-1 py-8">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <Link
-            href="/search"
+            href={searchParams.toString() ? `/search?${searchParams.toString()}` : "/search"}
             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />

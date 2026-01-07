@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { getConversationsForUser, getMessages, sendMessage, createConversation } from "@/lib/services/messagesService"
 import { getGP } from "@/lib/services/gpService"
@@ -23,6 +24,8 @@ export default function MessagesContent() {
   const [newMessage, setNewMessage] = useState("")
 
   const newGpId = searchParams.get("new")
+  const returnToParam = searchParams.get("returnTo")
+  const decodedReturnTo = returnToParam ? decodeURIComponent(returnToParam) : null
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -84,8 +87,20 @@ export default function MessagesContent() {
     )
   }
 
+  const backLink = decodedReturnTo || "/search"
+
   const selectedConversation = conversations.find((c) => c.id === selectedConv)
   const otherParticipant = selectedConversation?.participants.find((p) => p.id !== user.id)
+
+  // Back link (preserve where user came from)
+  const BackToResults = () => (
+    <div className="mb-4">
+      <Link href={backLink} className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Retour
+      </Link>
+    </div>
+  )
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -115,6 +130,9 @@ export default function MessagesContent() {
 
   return (
     <main className="flex-1 flex flex-col md:flex-row h-[calc(100vh-64px)]">
+      {/* Back link */}
+      <BackToResults />
+
       {/* Conversations List */}
       <div className={`w-full md:w-80 border-r bg-muted/30 ${selectedConv && "hidden md:block"}`}>
         <div className="p-4 border-b">

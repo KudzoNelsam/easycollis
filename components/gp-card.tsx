@@ -7,9 +7,10 @@ import type { GP } from "@/lib/models"
 
 interface GPCardProps {
   gp: GP
+  searchQuery?: string
 }
 
-export function GPCard({ gp }: GPCardProps) {
+export function GPCard({ gp, searchQuery }: GPCardProps) {
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <CardContent className="p-6">
@@ -58,7 +59,7 @@ export function GPCard({ gp }: GPCardProps) {
         </div>
       </CardContent>
       <CardFooter className="p-6 pt-0">
-        <Link href={`/gp/${gp.id}`} className="w-full">
+        <Link href={`/gp/${gp.id}${searchQuery ? `?${searchQuery}` : ""}`} className="w-full">
           <Button className="w-full bg-primary hover:bg-primary/90">Voir les détails</Button>
         </Link>
       </CardFooter>
