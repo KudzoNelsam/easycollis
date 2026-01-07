@@ -1,25 +1,36 @@
 "use client"
 
-import { useState, useMemo, Suspense } from "react"
+import { useState, useMemo, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { SearchForm } from "@/components/search-form"
 import { GPCard } from "@/components/gp-card"
-import { MOCK_GPS } from "@/lib/data"
+import { listGPs } from "@/lib/services/gpService"
+import type { GP } from "@/lib/types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
+import { Package } from "lucide-react"
 
 function SearchContent() {
   const searchParams = useSearchParams()
   const [sortBy, setSortBy] = useState("date")
+  const [gps, setGps] = useState<GP[]>([])
+  const [loading, setLoading] = useState(true)
 
   const destination = searchParams.get("destination") || ""
   const date = searchParams.get("date") || ""
   const city = searchParams.get("city") || ""
 
+  useEffect(() => {
+    listGPs().then((data) => {
+      setGps(data)
+      setLoading(false)
+    })
+  }, [])
+
   const filteredGPs = useMemo(() => {
-    let results = [...MOCK_GPS]
+    let results = [...gps]
 
     if (destination) {
       results = results.filter((gp) => gp.destination.toLowerCase().includes(destination.toLowerCase()))
@@ -46,6 +57,14 @@ function SearchContent() {
 
     return results
   }, [destination, date, city, sortBy])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Package className="h-8 w-8 animate-pulse text-primary" />
+      </div>
+    )
+  }
 
   return (
     <>

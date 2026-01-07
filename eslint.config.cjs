@@ -1,0 +1,15 @@
+module.exports = {
+  extends: ["next/core-web-vitals", "plugin:@typescript-eslint/recommended", "prettier"],
+  plugins: ["@typescript-eslint", "react", "react-hooks", "jsx-a11y"],
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    ecmaVersion: 2024,
+    sourceType: "module",
+    ecmaFeatures: { jsx: true },
+  },
+  rules: {
+    "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+  },
+  settings: { react: { version: "detect" } },
+}

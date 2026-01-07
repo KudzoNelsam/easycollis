@@ -2,12 +2,14 @@
 
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MOCK_GPS } from "@/lib/data"
+import { getGP } from "@/lib/services/gpService"
+import type { GP } from "@/lib/types"
 import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import { MapPin, Calendar, Package, Star, CheckCircle, ArrowLeft, MessageSquare, CreditCard } from "lucide-react"
@@ -18,8 +20,23 @@ export default function GPDetailPage() {
   const router = useRouter()
   const { user, updatePassBalance } = useAuth()
   const { toast } = useToast()
+  const [gp, setGp] = useState<GP | undefined>(undefined)
+  const [loading, setLoading] = useState(true)
 
-  const gp = MOCK_GPS.find((g) => g.id === id)
+  useEffect(() => {
+    getGP(id).then((data) => {
+      setGp(data)
+      setLoading(false)
+    })
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Package className="h-8 w-8 animate-pulse text-primary" />
+      </div>
+    )
+  }
 
   if (!gp) {
     return (
