@@ -28,8 +28,9 @@ export default function HomePage() {
               <span className="text-primary">simplicité</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
-              EASYCOLLIS connecte les clients avec des transporteurs GP de
-              confiance pour vos envois internationaux.
+              <span className="uppercase">{title}</span> connecte les clients
+              avec des transporteurs GP de confiance pour vos envois
+              internationaux.
             </p>
           </div>
 
