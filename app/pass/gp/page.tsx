@@ -1,15 +1,29 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAuth } from "@/lib/auth-context"
-import { useToast } from "@/hooks/use-toast"
-import { ArrowLeft, CreditCard, Check, Package, Plane, Eye, MessageSquare } from "lucide-react"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Navbar } from "../../components/navbar";
+import { Footer } from "../../components/footer";
+import { Button } from "../../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { useAuth } from "@/lib/auth-context";
+import { useToast } from "@/hooks/use-toast";
+import {
+  ArrowLeft,
+  CreditCard,
+  Check,
+  Package,
+  Plane,
+  Eye,
+  MessageSquare,
+} from "lucide-react";
 
 const GP_PASS_OPTIONS = [
   {
@@ -22,46 +36,57 @@ const GP_PASS_OPTIONS = [
   {
     name: "Pro",
     price: 2500,
-    features: ["5 voyages publiés", "Visibilité prioritaire", "Messagerie illimitée", "Badge vérifié"],
+    features: [
+      "5 voyages publiés",
+      "Visibilité prioritaire",
+      "Messagerie illimitée",
+      "Badge vérifié",
+    ],
     voyages: 5,
     popular: true,
   },
   {
     name: "Business",
     price: 5000,
-    features: ["Voyages illimités", "Top visibilité", "Messagerie illimitée", "Badge vérifié", "Support prioritaire"],
+    features: [
+      "Voyages illimités",
+      "Top visibilité",
+      "Messagerie illimitée",
+      "Badge vérifié",
+      "Support prioritaire",
+    ],
     voyages: 99,
     popular: false,
   },
-]
+];
 
 export default function GPPassPage() {
-  const router = useRouter()
-  const { user, updatePassBalance, isLoading } = useAuth()
-  const { toast } = useToast()
+  const router = useRouter();
+  const { user, updatePassBalance, isLoading } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "gp")) {
-      router.push("/login")
+      router.push("/login");
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading, router]);
 
   if (isLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Package className="h-8 w-8 animate-pulse text-primary" />
       </div>
-    )
+    );
   }
 
   const handlePurchase = (option: (typeof GP_PASS_OPTIONS)[0]) => {
     // Simulate payment (mock)
-    updatePassBalance(option.voyages)
+    updatePassBalance(option.voyages);
     toast({
       title: "Achat réussi !",
       description: `Vous avez acheté le pack ${option.name} pour ${option.price} FCFA.`,
-    })
-  }
+    });
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -78,17 +103,28 @@ export default function GPPassPage() {
           </Link>
 
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">PASS GP / Agence</h1>
-            <p className="text-muted-foreground">Publiez vos voyages et soyez visible auprès des clients</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              PASS GP / Agence
+            </h1>
+            <p className="text-muted-foreground">
+              Publiez vos voyages et soyez visible auprès des clients
+            </p>
             <div className="inline-flex items-center gap-2 mt-4 bg-accent/10 px-4 py-2 rounded-full">
               <CreditCard className="h-5 w-5 text-accent" />
-              <span className="font-semibold">Solde actuel: {user.passBalance} PASS</span>
+              <span className="font-semibold">
+                Solde actuel: {user.passBalance} PASS
+              </span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {GP_PASS_OPTIONS.map((option) => (
-              <Card key={option.name} className={option.popular ? "border-accent shadow-lg scale-105" : ""}>
+              <Card
+                key={option.name}
+                className={
+                  option.popular ? "border-accent shadow-lg scale-105" : ""
+                }
+              >
                 {option.popular && (
                   <div className="bg-accent text-accent-foreground text-center py-1 text-sm font-medium">
                     Recommandé
@@ -97,7 +133,9 @@ export default function GPPassPage() {
                 <CardHeader className="text-center">
                   <CardTitle className="text-2xl">{option.name}</CardTitle>
                   <CardDescription>
-                    <span className="text-3xl font-bold text-foreground">{option.price}</span>
+                    <span className="text-3xl font-bold text-foreground">
+                      {option.price}
+                    </span>
                     <span className="text-muted-foreground"> FCFA</span>
                   </CardDescription>
                 </CardHeader>
@@ -129,21 +167,27 @@ export default function GPPassPage() {
                 <Plane className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-semibold mb-1">Publiez vos voyages</h3>
-              <p className="text-sm text-muted-foreground">Créez et gérez vos voyages facilement</p>
+              <p className="text-sm text-muted-foreground">
+                Créez et gérez vos voyages facilement
+              </p>
             </div>
             <div className="text-center">
               <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <Eye className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-semibold mb-1">Gagnez en visibilité</h3>
-              <p className="text-sm text-muted-foreground">Apparaissez dans les résultats de recherche</p>
+              <p className="text-sm text-muted-foreground">
+                Apparaissez dans les résultats de recherche
+              </p>
             </div>
             <div className="text-center">
               <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <MessageSquare className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-semibold mb-1">Recevez des demandes</h3>
-              <p className="text-sm text-muted-foreground">Les clients vous contactent directement</p>
+              <p className="text-sm text-muted-foreground">
+                Les clients vous contactent directement
+              </p>
             </div>
           </div>
         </div>
@@ -151,5 +195,5 @@ export default function GPPassPage() {
 
       <Footer />
     </div>
-  )
+  );
 }

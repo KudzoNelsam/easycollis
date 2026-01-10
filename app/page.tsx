@@ -1,13 +1,16 @@
-import Link from "next/link"
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
-import { SearchForm } from "@/components/search-form"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Package, Shield, MessageSquare, CreditCard, ArrowRight, Plane, CheckCircle } from "lucide-react"
-import { POPULAR_DESTINATIONS } from "@/lib/data"
+import Link from "next/link";
+import { Navbar } from "./components/navbar";
+import { Footer } from "./components/footer";
+import { SearchForm } from "./components/search-form";
+import { Button } from "./components/ui/button";
+import { Card, CardContent } from "./components/ui/card";
+import { ArrowRight, Plane, CheckCircle } from "lucide-react";
+import { POPULAR_DESTINATIONS } from "@/lib/data";
+import { Helpers } from "./components/ui/helpers";
 
 export default function HomePage() {
+  const title = process.env.NEXT_PUBLIC_APP_NAME;
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -21,10 +24,12 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 text-balance">
-              Envoyez vos colis à l'international en toute <span className="text-primary">simplicité</span>
+              Envoyez vos colis à l'international en toute{" "}
+              <span className="text-primary">simplicité</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
-              EASYCOLLIS connecte les clients avec des transporteurs GP de confiance pour vos envois internationaux.
+              EASYCOLLIS connecte les clients avec des transporteurs GP de
+              confiance pour vos envois internationaux.
             </p>
           </div>
 
@@ -32,13 +37,20 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
             <Link href="/search">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent">
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto bg-transparent"
+              >
                 Chercher un GP
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
             <Link href="/register?role=gp">
-              <Button size="lg" className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90">
+              <Button
+                size="lg"
+                className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90"
+              >
                 Devenir GP
                 <Plane className="ml-2 h-4 w-4" />
               </Button>
@@ -46,58 +58,20 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
       {/* Features Section */}
       <section className="py-20 bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Comment ça marche ?</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-4">
+              Comment ça marche ?
+            </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Une plateforme simple et sécurisée pour tous vos envois internationaux
+              Une plateforme simple et sécurisée pour tous vos envois
+              internationaux
             </p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="text-center border-0 shadow-md">
-              <CardContent className="pt-8 pb-6">
-                <div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <Package className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">1. Recherchez</h3>
-                <p className="text-sm text-muted-foreground">Trouvez un GP selon votre destination et date d'envoi</p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center border-0 shadow-md">
-              <CardContent className="pt-8 pb-6">
-                <div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <CreditCard className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">2. Achetez un PASS</h3>
-                <p className="text-sm text-muted-foreground">Obtenez un PASS pour contacter les transporteurs</p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center border-0 shadow-md">
-              <CardContent className="pt-8 pb-6">
-                <div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <MessageSquare className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">3. Contactez</h3>
-                <p className="text-sm text-muted-foreground">Échangez directement avec le GP via notre messagerie</p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center border-0 shadow-md">
-              <CardContent className="pt-8 pb-6">
-                <div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <Shield className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">4. Envoyez</h3>
-                <p className="text-sm text-muted-foreground">Confiez votre colis en toute sérénité</p>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Helpers Parties */}
+          <Helpers />
         </div>
       </section>
 
@@ -106,8 +80,12 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-foreground mb-2">Destinations populaires</h2>
-              <p className="text-muted-foreground">Les routes les plus demandées par nos utilisateurs</p>
+              <h2 className="text-3xl font-bold text-foreground mb-2">
+                Destinations populaires
+              </h2>
+              <p className="text-muted-foreground">
+                Les routes les plus demandées par nos utilisateurs
+              </p>
             </div>
             <Link href="/destinations">
               <Button variant="outline">
@@ -126,8 +104,12 @@ export default function HomePage() {
                     <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
                       {dest.city}
                     </h3>
-                    <p className="text-xs text-muted-foreground">{dest.country}</p>
-                    <p className="text-xs text-primary mt-1">{dest.gpCount} GPs</p>
+                    <p className="text-xs text-muted-foreground">
+                      {dest.country}
+                    </p>
+                    <p className="text-xs text-primary mt-1">
+                      {dest.gpCount} GPs
+                    </p>
                   </CardContent>
                 </Card>
               </Link>
@@ -141,7 +123,9 @@ export default function HomePage() {
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <Card className="border-primary/20">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold text-foreground mb-6 text-center">Comptes de test disponibles</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
+                Comptes de test disponibles
+              </h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <h3 className="font-semibold text-foreground flex items-center gap-2">
@@ -151,13 +135,21 @@ export default function HomePage() {
                   <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                     <p className="text-sm">
                       <span className="text-muted-foreground">Email:</span>{" "}
-                      <code className="bg-background px-2 py-0.5 rounded">client@test.com</code>
+                      <code className="bg-background px-2 py-0.5 rounded">
+                        client@test.com
+                      </code>
                     </p>
                     <p className="text-sm">
-                      <span className="text-muted-foreground">Mot de passe:</span>{" "}
-                      <code className="bg-background px-2 py-0.5 rounded">client123</code>
+                      <span className="text-muted-foreground">
+                        Mot de passe:
+                      </span>{" "}
+                      <code className="bg-background px-2 py-0.5 rounded">
+                        client123
+                      </code>
                     </p>
-                    <p className="text-xs text-muted-foreground">2 PASS disponibles</p>
+                    <p className="text-xs text-muted-foreground">
+                      2 PASS disponibles
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -168,13 +160,21 @@ export default function HomePage() {
                   <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                     <p className="text-sm">
                       <span className="text-muted-foreground">Email:</span>{" "}
-                      <code className="bg-background px-2 py-0.5 rounded">gp@test.com</code>
+                      <code className="bg-background px-2 py-0.5 rounded">
+                        gp@test.com
+                      </code>
                     </p>
                     <p className="text-sm">
-                      <span className="text-muted-foreground">Mot de passe:</span>{" "}
-                      <code className="bg-background px-2 py-0.5 rounded">gp123</code>
+                      <span className="text-muted-foreground">
+                        Mot de passe:
+                      </span>{" "}
+                      <code className="bg-background px-2 py-0.5 rounded">
+                        gp123
+                      </code>
                     </p>
-                    <p className="text-xs text-muted-foreground">5 PASS disponibles</p>
+                    <p className="text-xs text-muted-foreground">
+                      5 PASS disponibles
+                    </p>
                   </div>
                 </div>
               </div>
@@ -193,5 +193,5 @@ export default function HomePage() {
 
       <Footer />
     </div>
-  )
+  );
 }
