@@ -5,8 +5,8 @@ import { SearchForm } from "./components/search-form";
 import { Button } from "./components/ui/button";
 import { Card, CardContent } from "./components/ui/card";
 import { ArrowRight, Plane, CheckCircle } from "lucide-react";
-import { POPULAR_DESTINATIONS } from "@/lib/data";
 import { Helpers } from "./components/ui/helpers";
+import { PopularDestinations } from "./components/popular-destinations";
 
 export default function HomePage() {
   const title = process.env.NEXT_PUBLIC_APP_NAME;
@@ -97,33 +97,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {POPULAR_DESTINATIONS.length > 0 ? (
-              POPULAR_DESTINATIONS.map((dest) => (
-                <Link key={dest.city} href={`/search?destination=${dest.city}`}>
-                  <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-                    <CardContent className="p-4 text-center">
-                      <span className="text-3xl mb-2 block">{dest.flag}</span>
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {dest.city}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {dest.country}
-                      </p>
-                      <p className="text-xs text-primary mt-1">
-                        {dest.gpCount} GPs
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))
-            ) : (
-              <div className="col-span-full text-center text-muted-foreground py-8">
-                <p>Aucune destination populaire pour le moment.</p>
-                <p className="text-sm mt-1">
-                  Elles apparaîtront quand des voyages seront créés.
-                </p>
-              </div>
-            )}
+            <PopularDestinations />
           </div>
         </div>
       </section>

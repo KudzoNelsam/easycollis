@@ -18,6 +18,8 @@ export interface Trip {
   gpId: string;
   gpName: string;
   destination: string;
+  destinationCountry?: string;
+  destinationFlag?: string;
   departureDate: string;
   availableKg: number;
   pricePerKg?: number;

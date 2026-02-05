@@ -1,9 +1,20 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "../../components/ui/card";
-import { ALL_DESTINATIONS } from "@/lib/data";
 import { ArrowRight } from "lucide-react";
+import { buildDestinations, getAllTripsClient } from "@/lib/services/destinationsService";
 
 export default function DestinationsPage() {
+  const [destinations, setDestinations] = useState(
+    buildDestinations(getAllTripsClient())
+  );
+
+  useEffect(() => {
+    setDestinations(buildDestinations(getAllTripsClient()));
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 py-12">
@@ -19,8 +30,8 @@ export default function DestinationsPage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {ALL_DESTINATIONS.length > 0 ? (
-              ALL_DESTINATIONS.map((dest) => (
+            {destinations.length > 0 ? (
+              destinations.map((dest) => (
                 <Link key={dest.city} href={`/search?destination=${dest.city}`}>
                   <Card className="hover:shadow-lg transition-all cursor-pointer group h-full">
                     <CardContent className="p-6 text-center">

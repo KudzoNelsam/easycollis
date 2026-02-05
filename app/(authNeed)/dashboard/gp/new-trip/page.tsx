@@ -26,6 +26,7 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { CITIES_DEPART, CITIES_DESTINATION } from "@/lib/data";
+import { getCatalogDestination } from "@/lib/services/destinationsService";
 import { ArrowLeft, Loader2, Package } from "lucide-react";
 import { isPassActive } from "@/lib/utils/pass";
 
@@ -95,10 +96,13 @@ export default function NewTripPage() {
     if (isEditing) {
       const updatedTrips = existingTrips.map((trip: any) => {
         if (trip.id === editId) {
+          const catalog = getCatalogDestination(destination);
           return {
             ...trip,
             cityDepart,
             destination,
+            destinationCountry: catalog?.country,
+            destinationFlag: catalog?.flag,
             departureDate,
             availableKg: Number.parseInt(availableKg),
             pricePerKg: pricePerKg ? Number.parseFloat(pricePerKg) : undefined,
@@ -111,6 +115,7 @@ export default function NewTripPage() {
         `easycollis_trips_${user.id}`,
         JSON.stringify(updatedTrips)
       );
+      updateAllTripsStorage(updatedTrips);
 
       toast({
         title: "Voyage modifié !",
@@ -118,12 +123,15 @@ export default function NewTripPage() {
       });
     } else {
       // Mode création
+      const catalog = getCatalogDestination(destination);
       const newTrip: any & { cityDepart: string } = {
         id: `trip-${Date.now()}`,
         gpId: user.id,
         gpName: user.name,
         cityDepart,
         destination,
+        destinationCountry: catalog?.country,
+        destinationFlag: catalog?.flag,
         departureDate,
         availableKg: Number.parseInt(availableKg),
         pricePerKg: pricePerKg ? Number.parseFloat(pricePerKg) : undefined,
@@ -136,6 +144,7 @@ export default function NewTripPage() {
         `easycollis_trips_${user.id}`,
         JSON.stringify(existingTrips)
       );
+      updateAllTripsStorage(existingTrips);
 
       toast({
         title: "Voyage créé !",
@@ -287,4 +296,13 @@ export default function NewTripPage() {
       </div>
     </main>
   );
+}
+
+function updateAllTripsStorage(userTrips: any[]) {
+  if (typeof window === "undefined") return;
+  const raw = localStorage.getItem("easycollis_trips_all");
+  const all = raw ? (JSON.parse(raw) as any[]) : [];
+  const next = all.filter((t) => !userTrips.some((u) => u.id === t.id));
+  next.push(...userTrips);
+  localStorage.setItem("easycollis_trips_all", JSON.stringify(next));
 }
