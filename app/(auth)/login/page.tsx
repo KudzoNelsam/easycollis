@@ -156,9 +156,9 @@ export default function LoginPage() {
               <CheckCircle className="h-5 w-5 text-primary shrink-0" />
               <div>
                 <p className="font-medium text-sm">Compte Client</p>
-                {/* <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   client@test.com / client123
-                </p> */}
+                </p>
               </div>
             </button>
             <button
@@ -169,9 +169,9 @@ export default function LoginPage() {
               <CheckCircle className="h-5 w-5 text-accent shrink-0" />
               <div>
                 <p className="font-medium text-sm">Compte GP</p>
-                {/* <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   gp@test.com / gp123
-                </p> */}
+                </p>
               </div>
             </button>
             <button
@@ -182,9 +182,9 @@ export default function LoginPage() {
               <Shield className="h-5 w-5 text-destructive shrink-0" />
               <div>
                 <p className="font-medium text-sm">Compte Admin</p>
-                {/* <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   admin@easycollis.com / admin123
-                </p> */}
+                </p>
               </div>
             </button>
           </CardContent>

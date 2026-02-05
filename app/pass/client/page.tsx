@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Navbar } from "../../components/navbar";
@@ -15,18 +15,26 @@ import {
 } from "../../components/ui/card";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CreditCard, Check, Package } from "lucide-react";
-
-const PASS_OPTIONS = [
-  { quantity: 1, price: 500, popular: false },
-  { quantity: 3, price: 1200, popular: true, savings: 300 },
-  { quantity: 5, price: 1800, popular: false, savings: 700 },
-  { quantity: 10, price: 3000, popular: false, savings: 2000 },
-];
+import {
+  ArrowLeft,
+  CreditCard,
+  Check,
+  Package,
+  Sparkles,
+  ShieldCheck,
+  Clock,
+} from "lucide-react";
+import {
+  createPendingPayment,
+  getCurrency,
+  listClientPacks,
+} from "@/lib/services/paymentsService";
+import type { ClientPack } from "@/lib/models";
+import { formatPassDate, isPassActive } from "@/lib/utils/pass";
 
 export default function ClientPassPage() {
   const router = useRouter();
-  const { user, updatePassBalance, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -43,13 +51,67 @@ export default function ClientPassPage() {
     );
   }
 
-  const handlePurchase = (quantity: number, price: number) => {
-    // Simulate payment (mock)
-    updatePassBalance(quantity);
-    toast({
-      title: "Achat réussi !",
-      description: `Vous avez acheté ${quantity} PASS pour ${price} FCFA.`,
+  const currency = getCurrency();
+  const packs = listClientPacks();
+
+  const [isPaying, setIsPaying] = useState(false);
+
+  const handlePurchase = (pack: ClientPack) => {
+    if (!user) return;
+    setIsPaying(true);
+    const ref = `pass-client-${Date.now()}`;
+    createPendingPayment({
+      ref,
+      userId: user.id,
+      role: "client",
+      packId: pack.id,
+      amount: pack.price,
+      currency,
+      durationDays: pack.durationDays,
     });
+
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    fetch("/api/paytech/request-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: pack.price,
+        currency,
+        ref,
+        itemName: "PASS Client",
+        email: user.email,
+        successUrl: `${baseUrl}/payment/success?ref=${encodeURIComponent(ref)}`,
+        cancelUrl: `${baseUrl}/payment/cancel?ref=${encodeURIComponent(ref)}`,
+        ipnUrl: `${baseUrl}/api/paytech/ipn`,
+        customField: JSON.stringify({
+          role: "client",
+          durationDays: pack.durationDays,
+          userId: user.id,
+        }),
+      }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok || data?.ok === false) {
+          const details = data?.details?.message || data?.error || "Paiement refusé";
+          throw new Error(details);
+        }
+        const url = data?.data?.redirect_url;
+        if (url) {
+          window.location.href = url;
+          return;
+        }
+        throw new Error("redirect_url missing");
+      })
+      .catch(() => {
+        setIsPaying(false);
+        toast({
+          title: "Erreur paiement",
+          description: "Impossible de lancer le paiement PayTech.",
+          variant: "destructive",
+        });
+      });
   };
 
   return (
@@ -66,75 +128,103 @@ export default function ClientPassPage() {
             Retour au tableau de bord
           </Link>
 
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Acheter des PASS Client
-            </h1>
-            <p className="text-muted-foreground">
-              Les PASS vous permettent de contacter les transporteurs GP
-            </p>
-            <div className="inline-flex items-center gap-2 mt-4 bg-primary/10 px-4 py-2 rounded-full">
-              <CreditCard className="h-5 w-5 text-primary" />
-              <span className="font-semibold">
-                Solde actuel: {user.passBalance} PASS
-              </span>
-            </div>
-          </div>
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="space-y-6">
+              <div className="rounded-3xl border bg-gradient-to-br from-primary/10 via-background to-accent/10 p-6">
+                <div className="flex items-center gap-3 text-primary">
+                  <Sparkles className="h-5 w-5" />
+                  <span className="text-sm font-semibold">PASS Client</span>
+                </div>
+                <h1 className="mt-3 text-3xl font-bold text-foreground">
+                  Contactez tous les GP pendant 30 jours
+                </h1>
+                <p className="mt-2 text-muted-foreground">
+                  Un seul PASS suffit pour discuter librement avec tous les GP
+                  et organiser vos envois.
+                </p>
+                <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-foreground">
+                  <CreditCard className="h-4 w-4 text-primary" />
+                  {isPassActive(user.passValidUntil)
+                    ? `Pass actif jusqu'au ${formatPassDate(user.passValidUntil)}`
+                    : "Aucun pass actif"}
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {PASS_OPTIONS.map((option) => (
-              <Card
-                key={option.quantity}
-                className={option.popular ? "border-primary shadow-lg" : ""}
-              >
-                {option.popular && (
-                  <div className="bg-primary text-primary-foreground text-center py-1 text-sm font-medium">
-                    Populaire
-                  </div>
-                )}
-                <CardHeader className="text-center">
-                  <CardTitle className="text-4xl font-bold">
-                    {option.quantity}
-                  </CardTitle>
-                  <CardDescription>PASS</CardDescription>
-                </CardHeader>
-                <CardContent className="text-center space-y-4">
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">
-                      {option.price} FCFA
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Card>
+                  <CardContent className="p-5 space-y-2">
+                    <ShieldCheck className="h-5 w-5 text-primary" />
+                    <p className="text-sm font-semibold">Accès illimité</p>
+                    <p className="text-xs text-muted-foreground">
+                      Contactez autant de GP que vous voulez.
                     </p>
-                    {option.savings && (
-                      <p className="text-sm text-primary">
-                        Économisez {option.savings} FCFA
-                      </p>
-                    )}
-                  </div>
-                  <ul className="text-sm text-muted-foreground space-y-2">
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary" />
-                      Contacter {option.quantity} GP
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary" />
-                      Messagerie illimitée
-                    </li>
-                  </ul>
-                  <Button
-                    className="w-full"
-                    variant={option.popular ? "default" : "outline"}
-                    onClick={() =>
-                      handlePurchase(option.quantity, option.price)
-                    }
-                  >
-                    Acheter
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-5 space-y-2">
+                    <Clock className="h-5 w-5 text-primary" />
+                    <p className="text-sm font-semibold">Valable 30 jours</p>
+                    <p className="text-xs text-muted-foreground">
+                      Activation immédiate après paiement.
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-5 space-y-2">
+                    <Check className="h-5 w-5 text-primary" />
+                    <p className="text-sm font-semibold">Messagerie incluse</p>
+                    <p className="text-xs text-muted-foreground">
+                      Discussions sécurisées et centralisées.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
 
-          <div className="mt-8 text-center text-sm text-muted-foreground">
-            <p>Paiement sécurisé • Les PASS n'expirent jamais</p>
+            <div className="space-y-4">
+              {packs.map((option) => (
+                <Card
+                  key={option.id}
+                  className="border-primary/30 shadow-lg"
+                >
+                  <CardHeader>
+                    <CardTitle className="text-xl">Pass Client</CardTitle>
+                    <CardDescription>
+                      Accès complet pendant {option.durationDays} jours
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-5">
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="text-3xl font-bold">
+                          {option.price} {currency}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Paiement sécurisé via PayTech
+                        </p>
+                      </div>
+                      <div className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                        Recommandé
+                      </div>
+                    </div>
+                    <div className="rounded-xl border bg-muted/40 p-3 text-sm text-muted-foreground">
+                      Un PASS actif vous ouvre l'accès illimité aux GP et à la
+                      messagerie pendant 30 jours.
+                    </div>
+                    <Button
+                      className="w-full"
+                      onClick={() => handlePurchase(option)}
+                      disabled={isPaying}
+                    >
+                      {isPaying ? "Redirection..." : "Payer et activer le PASS"}
+                    </Button>
+                    <div className="text-center text-xs text-muted-foreground">
+                      Pas de renouvellement automatique
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </main>

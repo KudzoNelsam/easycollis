@@ -25,6 +25,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { formatPassDate, isPassActive } from "@/lib/utils/pass";
 
 export default function ClientDashboard() {
   const router = useRouter();
@@ -68,10 +69,15 @@ export default function ClientDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Solde PASS</p>
+                    <p className="text-sm text-muted-foreground">PASS Client</p>
                     <p className="text-3xl font-bold text-foreground">
-                      {user.passBalance}
+                      {isPassActive(user.passValidUntil) ? "Actif" : "Inactif"}
                     </p>
+                    {isPassActive(user.passValidUntil) && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Expire le {formatPassDate(user.passValidUntil)}
+                      </p>
+                    )}
                   </div>
                   <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                     <CreditCard className="h-6 w-6 text-primary" />
@@ -81,7 +87,7 @@ export default function ClientDashboard() {
                   href="/pass/client"
                   className="text-sm text-primary hover:underline mt-3 inline-block"
                 >
-                  Acheter des PASS
+                  Acheter un PASS
                 </Link>
               </CardContent>
             </Card>
@@ -146,11 +152,11 @@ export default function ClientDashboard() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground">
-                      1 PASS = 1 Contact
+                      PASS valable 30 jours
                     </h4>
                     <p className="text-sm text-muted-foreground">
-                      Chaque PASS vous permet de contacter un GP et d'accéder à
-                      la messagerie avec lui.
+                      Un PASS actif vous donne un accès illimité aux GP pendant
+                      30 jours.
                     </p>
                   </div>
                 </div>
@@ -160,11 +166,11 @@ export default function ClientDashboard() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground">
-                      Messagerie sécurisée
+                      Messagerie illimitée
                     </h4>
                     <p className="text-sm text-muted-foreground">
-                      Une fois le PASS utilisé, vous pouvez échanger en illimité
-                      avec ce GP via notre messagerie.
+                      Contactez autant de GP que vous voulez pendant la durée
+                      du PASS.
                     </p>
                   </div>
                 </div>
@@ -188,8 +194,7 @@ export default function ClientDashboard() {
                   <strong className="text-foreground">
                     Tarifs PASS Client :
                   </strong>{" "}
-                  1 PASS = 500 FCFA | Pack 5 PASS = 2000 FCFA | Pack 10 PASS =
-                  3500 FCFA
+                  PASS client = 500 FCFA (valable 30 jours)
                 </p>
               </div>
             </CardContent>

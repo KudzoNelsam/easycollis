@@ -97,98 +97,34 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {POPULAR_DESTINATIONS.map((dest) => (
-              <Link key={dest.city} href={`/search?destination=${dest.city}`}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-                  <CardContent className="p-4 text-center">
-                    <span className="text-3xl mb-2 block">{dest.flag}</span>
-                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                      {dest.city}
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      {dest.country}
-                    </p>
-                    <p className="text-xs text-primary mt-1">
-                      {dest.gpCount} GPs
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Test Accounts Info */}
-      <section className="py-16 bg-primary/5">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <Card className="border-primary/20">
-            <CardContent className="p-8">
-              <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
-                Comptes de test disponibles
-              </h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-foreground flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                    Compte Client
-                  </h3>
-                  <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                    <p className="text-sm">
-                      <span className="text-muted-foreground">Email:</span>{" "}
-                      <code className="bg-background px-2 py-0.5 rounded">
-                        client@test.com
-                      </code>
-                    </p>
-                    <p className="text-sm">
-                      <span className="text-muted-foreground">
-                        Mot de passe:
-                      </span>{" "}
-                      <code className="bg-background px-2 py-0.5 rounded">
-                        client123
-                      </code>
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      2 PASS disponibles
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-foreground flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-accent" />
-                    Compte GP
-                  </h3>
-                  <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                    <p className="text-sm">
-                      <span className="text-muted-foreground">Email:</span>{" "}
-                      <code className="bg-background px-2 py-0.5 rounded">
-                        gp@test.com
-                      </code>
-                    </p>
-                    <p className="text-sm">
-                      <span className="text-muted-foreground">
-                        Mot de passe:
-                      </span>{" "}
-                      <code className="bg-background px-2 py-0.5 rounded">
-                        gp123
-                      </code>
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      5 PASS disponibles
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center mt-6">
-                <Link href="/login">
-                  <Button className="bg-primary hover:bg-primary/90">
-                    Se connecter
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+            {POPULAR_DESTINATIONS.length > 0 ? (
+              POPULAR_DESTINATIONS.map((dest) => (
+                <Link key={dest.city} href={`/search?destination=${dest.city}`}>
+                  <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+                    <CardContent className="p-4 text-center">
+                      <span className="text-3xl mb-2 block">{dest.flag}</span>
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {dest.city}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {dest.country}
+                      </p>
+                      <p className="text-xs text-primary mt-1">
+                        {dest.gpCount} GPs
+                      </p>
+                    </CardContent>
+                  </Card>
                 </Link>
+              ))
+            ) : (
+              <div className="col-span-full text-center text-muted-foreground py-8">
+                <p>Aucune destination populaire pour le moment.</p>
+                <p className="text-sm mt-1">
+                  Elles apparaîtront quand des voyages seront créés.
+                </p>
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </div>
         </div>
       </section>
 

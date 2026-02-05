@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { GPProfile } from "@/app/lib/models/user";
+import { formatPassDate, isPassActive } from "@/lib/utils/pass";
 
 export default function GPDashboard() {
   const router = useRouter();
@@ -102,10 +103,15 @@ export default function GPDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Solde PASS</p>
+                    <p className="text-sm text-muted-foreground">PASS GP</p>
                     <p className="text-3xl font-bold text-foreground">
-                      {user.passBalance}
+                      {isPassActive(user.passValidUntil) ? "Actif" : "Inactif"}
                     </p>
+                    {isPassActive(user.passValidUntil) && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Expire le {formatPassDate(user.passValidUntil)}
+                      </p>
+                    )}
                   </div>
                   <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
                     <CreditCard className="h-6 w-6 text-accent" />
@@ -115,7 +121,7 @@ export default function GPDashboard() {
                   href="/pass/gp"
                   className="text-sm text-accent hover:underline mt-3 inline-block"
                 >
-                  Acheter des PASS
+                  Acheter un PASS
                 </Link>
               </CardContent>
             </Card>

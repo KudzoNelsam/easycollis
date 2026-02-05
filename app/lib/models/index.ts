@@ -3,3 +3,10 @@ export type { UserRole, User, GPProfile } from "./user"
 export type { LoginResult, AuthContextType, RegisterData } from "./auth"
 export type { Message, ConversationParticipant, Conversation } from "./messages"
 export type { GP, Trip, FollowedTrip } from "./gp"
+export type {
+  ClientPack,
+  GPPack,
+  PaymentRole,
+  PaymentTransaction,
+  PendingPayment,
+} from "./payment"

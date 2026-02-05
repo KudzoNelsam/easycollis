@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 import { useAuth } from "@/lib/auth-context";
 import { MOCK_GPS } from "@/lib/data";
 import {
@@ -34,6 +32,8 @@ import {
   UserCheck,
   Plane,
 } from "lucide-react";
+import { formatPassDate, isPassActive } from "@/lib/utils/pass";
+import db from "@/lib/mocks/database.json";
 
 interface AdminStats {
   totalClients: number;
@@ -50,7 +50,7 @@ interface UserData {
   email: string;
   role: "client" | "gp";
   city?: string;
-  passBalance: number;
+  passValidUntil?: string;
   verified?: boolean;
   status: "active" | "suspended";
   createdAt: string;
@@ -62,93 +62,16 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Simulated data
-  const [stats] = useState<AdminStats>({
-    totalClients: 156,
-    totalGPs: 45,
-    totalTrips: 234,
-    totalRevenue: 2450000,
-    activeTrips: 28,
-    pendingVerifications: 5,
-  });
-
-  const [users] = useState<UserData[]>([
-    {
-      id: "client-1",
-      name: "Marie Dupont",
-      email: "client@test.com",
-      role: "client",
-      city: "Paris",
-      passBalance: 2,
-      status: "active",
-      createdAt: "2024-01-15",
-    },
-    {
-      id: "client-2",
-      name: "Jean Martin",
-      email: "client2@test.com",
-      role: "client",
-      city: "Lyon",
-      passBalance: 0,
-      status: "active",
-      createdAt: "2024-02-20",
-    },
-    {
-      id: "client-3",
-      name: "Sophie Bernard",
-      email: "sophie@test.com",
-      role: "client",
-      city: "Marseille",
-      passBalance: 5,
-      status: "active",
-      createdAt: "2024-03-10",
-    },
-    {
-      id: "client-4",
-      name: "Paul Moreau",
-      email: "paul@test.com",
-      role: "client",
-      city: "Bordeaux",
-      passBalance: 1,
-      status: "suspended",
-      createdAt: "2024-01-05",
-    },
-  ]);
-
-  const [transactions] = useState([
-    {
-      id: "tx-1",
-      user: "Marie Dupont",
-      type: "Achat PASS",
-      amount: 5000,
-      date: "2025-01-08",
-      status: "completed",
-    },
-    {
-      id: "tx-2",
-      user: "Transport Koné",
-      type: "Achat PASS GP",
-      amount: 15000,
-      date: "2025-01-07",
-      status: "completed",
-    },
-    {
-      id: "tx-3",
-      user: "Jean Martin",
-      type: "Achat PASS",
-      amount: 2500,
-      date: "2025-01-06",
-      status: "pending",
-    },
-    {
-      id: "tx-4",
-      user: "Express Dakar",
-      type: "Achat PASS GP",
-      amount: 25000,
-      date: "2025-01-05",
-      status: "completed",
-    },
-  ]);
+  const stats = db.adminStats as AdminStats;
+  const users = db.adminUsers as UserData[];
+  const transactions = db.adminTransactions as {
+    id: string;
+    user: string;
+    type: string;
+    amount: number;
+    date: string;
+    status: string;
+  }[];
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "admin")) {
@@ -539,7 +462,9 @@ export default function AdminDashboard() {
                               )}
                               <span className="flex items-center gap-1">
                                 <CreditCard className="h-3 w-3" />
-                                {client.passBalance} PASS
+                                {isPassActive(client.passValidUntil)
+                                  ? `PASS actif · ${formatPassDate(client.passValidUntil)}`
+                                  : "PASS inactif"}
                               </span>
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />

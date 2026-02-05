@@ -25,7 +25,7 @@ export function Helpers({ children, className = "", ...props }: any) {
             2. Achetez un PASS
           </h3>
           <p className="text-sm text-muted-foreground">
-            Obtenez un PASS pour contacter les transporteurs
+            Un PASS actif vous donne accès aux GP pendant 30 jours
           </p>
         </CardContent>
       </Card>

@@ -17,6 +17,7 @@ import type {
   AuthContextType,
   RegisterData,
 } from "@/lib/models";
+import { extendPass } from "@/lib/utils/pass";
 
 // TEST_ACCOUNTS moved to auth service - authService handles mock logic and storage
 
@@ -58,9 +59,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/");
   };
 
-  const updatePassBalance = (amount: number) => {
+  const updatePassValidity = (days = 30) => {
     if (user) {
-      const updatedUser = { ...user, passBalance: user.passBalance + amount };
+      const updatedUser = {
+        ...user,
+        passValidUntil: extendPass(user.passValidUntil, days),
+      };
       setUser(updatedUser);
       localStorage.setItem("easycollis_user", JSON.stringify(updatedUser));
 
@@ -80,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, register, logout, updatePassBalance, isLoading }}
+      value={{ user, login, register, logout, updatePassValidity, isLoading }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,51 +1,26 @@
 import { USE_MOCKS, ENDPOINTS } from "@/lib/config"
 import { httpPost } from "@/lib/api/fetcher"
 import type { User, GPProfile, UserRole } from "@/lib/models"
+import db from "@/lib/mocks/database.json"
 
 type LoginResult = { success: boolean; user?: User | GPProfile }
 
-// Mocked test accounts for local mode
-const TEST_ACCOUNTS: Record<string, { password: string; user: User | GPProfile }> = {
-  "admin@easycollis.com": {
-    password: "admin123",
-    user: {
-      id: "admin-1",
-      email: "admin@easycollis.com",
-      name: "Administrateur",
-      role: "admin",
-      passBalance: 999,
-      createdAt: new Date(),
-    } as User,
-  },
-  "client@test.com": {
-    password: "client123",
-    user: {
-      id: "client-1",
-      email: "client@test.com",
-      name: "Marie Dupont",
-      role: "client",
-      city: "Paris",
-      passBalance: 2,
-      createdAt: new Date(),
-    } as User,
-  },
-  "gp@test.com": {
-    password: "gp123",
-    user: {
-      id: "gp-1",
-      email: "gp@test.com",
-      name: "Transport Koné",
-      role: "gp",
-      city: "Abidjan",
-      destination: "Paris",
-      departureDate: "2025-01-15",
-      availableKg: 50,
-      description: "Transport fiable et rapide vers la France. 10 ans d'expérience.",
-      passBalance: 5,
-      createdAt: new Date(),
-    } as GPProfile,
-  },
-}
+// Mocked test accounts (from JSON database)
+const TEST_ACCOUNTS: Record<string, { password: string; user: User | GPProfile }> =
+  db.testAccounts.reduce(
+    (acc, entry) => {
+      const key = entry.email.toLowerCase()
+      acc[key] = {
+        password: entry.password,
+        user: {
+          ...(entry.user as User | GPProfile),
+          createdAt: new Date(entry.user.createdAt),
+        },
+      }
+      return acc
+    },
+    {} as Record<string, { password: string; user: User | GPProfile }>
+  )
 
 export async function login(email: string, password: string): Promise<LoginResult> {
   const normalized = email.toLowerCase()
@@ -107,7 +82,7 @@ export async function register(data: { email: string; password: string; name: st
       name: data.name,
       role: data.role as UserRole,
       city: data.city,
-      passBalance: 0,
+      passValidUntil: undefined,
       createdAt: new Date(),
       ...(data.role === "gp" && {
         destination: data.destination,
@@ -145,7 +120,7 @@ export async function register(data: { email: string; password: string; name: st
     name: data.name,
     role: data.role as UserRole,
     city: data.city,
-    passBalance: 0,
+    passValidUntil: undefined,
     createdAt: new Date(),
     ...(data.role === "gp" && {
       destination: data.destination,

@@ -1,0 +1,106 @@
+{
+  "gps": [],
+  "popularDestinations": [
+    { "city": "Paris", "country": "France", "flag": "🇫🇷", "gpCount": 45 },
+    { "city": "Marseille", "country": "France", "flag": "🇫🇷", "gpCount": 28 },
+    { "city": "Lyon", "country": "France", "flag": "🇫🇷", "gpCount": 22 },
+    { "city": "Bruxelles", "country": "Belgique", "flag": "🇧🇪", "gpCount": 18 },
+    { "city": "Montréal", "country": "Canada", "flag": "🇨🇦", "gpCount": 15 },
+    { "city": "New York", "country": "USA", "flag": "🇺🇸", "gpCount": 12 }
+  ],
+  "destinations": [
+    { "city": "Paris", "country": "France", "flag": "🇫🇷", "gpCount": 45 },
+    { "city": "Marseille", "country": "France", "flag": "🇫🇷", "gpCount": 28 },
+    { "city": "Lyon", "country": "France", "flag": "🇫🇷", "gpCount": 22 },
+    { "city": "Bruxelles", "country": "Belgique", "flag": "🇧🇪", "gpCount": 18 },
+    { "city": "Montréal", "country": "Canada", "flag": "🇨🇦", "gpCount": 15 },
+    { "city": "New York", "country": "USA", "flag": "🇺🇸", "gpCount": 12 },
+    { "city": "Toulouse", "country": "France", "flag": "🇫🇷", "gpCount": 8 },
+    { "city": "Bordeaux", "country": "France", "flag": "🇫🇷", "gpCount": 6 },
+    { "city": "Londres", "country": "UK", "flag": "🇬🇧", "gpCount": 10 },
+    { "city": "Rome", "country": "Italie", "flag": "🇮🇹", "gpCount": 5 },
+    { "city": "Madrid", "country": "Espagne", "flag": "🇪🇸", "gpCount": 7 },
+    { "city": "Genève", "country": "Suisse", "flag": "🇨🇭", "gpCount": 4 }
+  ],
+  "conversations": [],
+  "messages": [],
+  "citiesDepart": [
+    { "value": "abidjan", "label": "Abidjan", "country": "Côte d'Ivoire" },
+    { "value": "dakar", "label": "Dakar", "country": "Sénégal" },
+    { "value": "bamako", "label": "Bamako", "country": "Mali" },
+    { "value": "conakry", "label": "Conakry", "country": "Guinée" },
+    { "value": "douala", "label": "Douala", "country": "Cameroun" },
+    { "value": "lome", "label": "Lomé", "country": "Togo" },
+    { "value": "cotonou", "label": "Cotonou", "country": "Bénin" },
+    { "value": "ouagadougou", "label": "Ouagadougou", "country": "Burkina Faso" },
+    { "value": "niamey", "label": "Niamey", "country": "Niger" },
+    { "value": "libreville", "label": "Libreville", "country": "Gabon" }
+  ],
+  "citiesDestination": [
+    { "value": "paris", "label": "Paris", "country": "France" },
+    { "value": "marseille", "label": "Marseille", "country": "France" },
+    { "value": "lyon", "label": "Lyon", "country": "France" },
+    { "value": "bordeaux", "label": "Bordeaux", "country": "France" },
+    { "value": "toulouse", "label": "Toulouse", "country": "France" },
+    { "value": "bruxelles", "label": "Bruxelles", "country": "Belgique" },
+    { "value": "montreal", "label": "Montréal", "country": "Canada" },
+    { "value": "new-york", "label": "New York", "country": "USA" },
+    { "value": "londres", "label": "Londres", "country": "Royaume-Uni" },
+    { "value": "geneve", "label": "Genève", "country": "Suisse" }
+  ],
+  "trips": [],
+  "followedTrips": [],
+  "testAccounts": [
+    {
+      "email": "admin@easycollis.com",
+      "password": "admin123",
+      "user": {
+        "id": "admin-1",
+        "email": "admin@easycollis.com",
+        "name": "Administrateur",
+        "role": "admin",
+        "createdAt": "2025-02-05T00:00:00.000Z"
+      }
+    },
+    {
+      "email": "client@test.com",
+      "password": "client123",
+      "user": {
+        "id": "client-1",
+        "email": "client@test.com",
+        "name": "Marie Dupont",
+        "role": "client",
+        "city": "Paris",
+        "passValidUntil": "2025-02-20T00:00:00.000Z",
+        "createdAt": "2025-02-05T00:00:00.000Z"
+      }
+    },
+    {
+      "email": "gp@test.com",
+      "password": "gp123",
+      "user": {
+        "id": "gp-1",
+        "email": "gp@test.com",
+        "name": "Transport Koné",
+        "role": "gp",
+        "city": "Abidjan",
+        "destination": "Paris",
+        "departureDate": "2025-02-10",
+        "availableKg": 50,
+        "description": "Transport fiable et rapide vers la France. 10 ans d'expérience.",
+        "passValidUntil": "2025-02-20T00:00:00.000Z",
+        "createdAt": "2025-02-05T00:00:00.000Z"
+      }
+    }
+  ],
+  "adminStats": {
+    "totalClients": 0,
+    "totalGPs": 0,
+    "totalTrips": 0,
+    "totalRevenue": 0,
+    "activeTrips": 0,
+    "pendingVerifications": 0
+  },
+  "adminUsers": [],
+  "adminTransactions": []
+}

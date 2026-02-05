@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -16,7 +16,14 @@ import {
 } from "@/lib/services/messagesService";
 import { getGP } from "@/lib/services/gpService";
 import type { Conversation, Message, UserRole, GP } from "@/lib/models";
-import { Send, Package, ArrowLeft } from "lucide-react";
+import {
+  Send,
+  Package,
+  ArrowLeft,
+  Search,
+  Sparkles,
+  Shield,
+} from "lucide-react";
 
 export default function MessagesContent() {
   const router = useRouter();
@@ -27,6 +34,7 @@ export default function MessagesContent() {
   const [selectedConv, setSelectedConv] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [search, setSearch] = useState("");
 
   const newGpId = searchParams.get("new");
   const returnToParam = searchParams.get("returnTo");
@@ -88,6 +96,33 @@ export default function MessagesContent() {
     }
   }, [selectedConv]);
 
+  const filteredConversations = useMemo(() => {
+    if (!search.trim()) return conversations;
+    const term = search.toLowerCase();
+    return conversations.filter((conv) =>
+      conv.participants.some((p) => p.name.toLowerCase().includes(term))
+    );
+  }, [conversations, search]);
+
+  const formatConversationTime = (value: Date) => {
+    const date = new Date(value);
+    const today = new Date();
+    const isSameDay =
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
+    if (isSameDay) {
+      return date.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+    return date.toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "short",
+    });
+  };
+
   if (isLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -147,149 +182,212 @@ export default function MessagesContent() {
   };
 
   return (
-    <main className="flex-1 flex flex-col md:flex-row h-[calc(100vh-64px)]">
-      {/* Back link */}
-      <BackToResults />
+    <main className="flex-1 py-6">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <BackToResults />
 
-      {/* Conversations List */}
-      <div
-        className={`w-full md:w-80 border-r bg-muted/30 ${selectedConv && "hidden md:block"}`}
-      >
-        <div className="p-4 border-b">
-          <h2 className="font-semibold text-lg">Messages</h2>
+        <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Messages</h1>
+            <p className="text-sm text-muted-foreground">
+              Centralisez vos échanges avec les GP et suivez vos demandes.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 rounded-full bg-muted/40 px-3 py-2">
+            <Shield className="h-4 w-4 text-primary" />
+            <span className="text-xs text-muted-foreground">
+              Messagerie sécurisée
+            </span>
+          </div>
         </div>
-        <div className="overflow-y-auto">
-          {conversations.length > 0 ? (
-            conversations.map((conv) => {
-              const other = conv.participants.find((p) => p.id !== user.id);
-              return (
-                <button
-                  key={conv.id}
-                  onClick={() => setSelectedConv(conv.id)}
-                  className={`w-full flex items-center gap-3 p-4 hover:bg-muted transition-colors text-left ${
-                    selectedConv === conv.id ? "bg-muted" : ""
-                  }`}
-                >
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <span className="font-semibold text-primary">
-                      {other?.name[0]}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">
-                      {other?.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {conv.lastMessage || "Nouvelle conversation"}
-                    </p>
-                  </div>
-                  {conv.unreadCount > 0 && (
-                    <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center">
-                      <span className="text-xs text-primary-foreground">
-                        {conv.unreadCount}
-                      </span>
-                    </div>
-                  )}
-                </button>
-              );
-            })
-          ) : (
-            <div className="p-4 text-center text-muted-foreground">
-              <p>Aucune conversation</p>
-            </div>
-          )}
-        </div>
-      </div>
 
-      {/* Chat Area */}
-      <div
-        className={`flex-1 flex flex-col ${!selectedConv && "hidden md:flex"}`}
-      >
-        {selectedConversation ? (
-          <>
-            {/* Chat Header */}
-            <div className="p-4 border-b flex items-center gap-3">
-              <button
-                onClick={() => setSelectedConv(null)}
-                className="md:hidden p-2 hover:bg-muted rounded-lg"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="font-semibold text-primary">
-                  {otherParticipant?.name[0]}
+        <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+          {/* Conversations List */}
+          <aside
+            className={`rounded-2xl border bg-background shadow-sm ${selectedConv ? "hidden lg:block" : ""}`}
+          >
+            <div className="border-b p-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-lg">Conversations</h2>
+                <span className="text-xs text-muted-foreground">
+                  {conversations.length} active
                 </span>
               </div>
-              <div>
-                <p className="font-semibold">{otherParticipant?.name}</p>
-                <p className="text-xs text-muted-foreground capitalize">
-                  {otherParticipant?.role}
-                </p>
+              <div className="mt-3 flex items-center gap-2 rounded-xl border bg-muted/30 px-3 py-2">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full bg-transparent text-sm outline-none"
+                  placeholder="Rechercher un contact..."
+                />
               </div>
             </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.length > 0 ? (
-                messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex ${msg.senderId === user.id ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`max-w-[75%] rounded-2xl px-4 py-2 ${
-                        msg.senderId === user.id
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted"
+            <div className="max-h-[60vh] overflow-y-auto">
+              {filteredConversations.length > 0 ? (
+                filteredConversations.map((conv) => {
+                  const other = conv.participants.find(
+                    (p) => p.id !== user.id
+                  );
+                  return (
+                    <button
+                      key={conv.id}
+                      onClick={() => setSelectedConv(conv.id)}
+                      className={`w-full border-b px-4 py-4 text-left transition ${
+                        selectedConv === conv.id
+                          ? "bg-primary/5"
+                          : "hover:bg-muted/50"
                       }`}
                     >
-                      <p className="text-sm">{msg.content}</p>
-                      <p
-                        className={`text-xs mt-1 ${
-                          msg.senderId === user.id
-                            ? "text-primary-foreground/70"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {new Date(msg.timestamp).toLocaleTimeString("fr-FR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                ))
+                      <div className="flex items-center gap-3">
+                        <div className="relative h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <span className="font-semibold text-primary">
+                            {other?.name[0]}
+                          </span>
+                          {conv.unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 h-5 min-w-[20px] rounded-full bg-primary px-1 text-center text-[10px] leading-5 text-primary-foreground">
+                              {conv.unreadCount}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="font-medium text-sm truncate">
+                              {other?.name}
+                            </p>
+                            <span className="text-[11px] text-muted-foreground">
+                              {formatConversationTime(conv.lastMessageTime)}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {conv.lastMessage || "Nouvelle conversation"}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })
               ) : (
-                <div className="text-center text-muted-foreground py-8">
-                  <p>Commencez la conversation avec {otherParticipant?.name}</p>
+                <div className="p-6 text-center text-muted-foreground">
+                  <Sparkles className="mx-auto h-6 w-6 mb-2 text-primary/60" />
+                  <p className="text-sm">Aucune conversation trouvée</p>
                 </div>
               )}
             </div>
+          </aside>
 
-            {/* Composer */}
-            <form onSubmit={handleSendMessage} className="p-4 border-t">
-              <div className="flex items-center gap-3">
-                <Input
-                  value={newMessage}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setNewMessage(e.target.value)
-                  }
-                  placeholder="Écrire un message..."
-                />
-                <Button
-                  type="submit"
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
+          {/* Chat Area */}
+          <section
+            className={`rounded-2xl border bg-background shadow-sm flex flex-col min-h-[520px] ${
+              !selectedConv ? "hidden lg:flex" : ""
+            }`}
+          >
+            {selectedConversation ? (
+              <>
+                <div className="border-b p-4 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setSelectedConv(null)}
+                      className="lg:hidden p-2 hover:bg-muted rounded-lg"
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                    </button>
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="font-semibold text-primary">
+                        {otherParticipant?.name[0]}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-semibold">{otherParticipant?.name}</p>
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {otherParticipant?.role}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
+                    <Shield className="h-4 w-4 text-primary/70" />
+                    Conversations protégées
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20">
+                  {messages.length > 0 ? (
+                    messages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`flex ${
+                          msg.senderId === user.id
+                            ? "justify-end"
+                            : "justify-start"
+                        }`}
+                      >
+                        <div
+                          className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+                            msg.senderId === user.id
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-background border"
+                          }`}
+                        >
+                          <p className="text-sm">{msg.content}</p>
+                          <p
+                            className={`text-xs mt-1 ${
+                              msg.senderId === user.id
+                                ? "text-primary-foreground/70"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            {new Date(msg.timestamp).toLocaleTimeString(
+                              "fr-FR",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-muted-foreground py-12">
+                      <Sparkles className="mx-auto h-6 w-6 mb-2 text-primary/60" />
+                      <p className="text-sm">
+                        Démarrez la conversation avec {otherParticipant?.name}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <form onSubmit={handleSendMessage} className="p-4 border-t">
+                  <div className="flex items-center gap-3">
+                    <Input
+                      value={newMessage}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setNewMessage(e.target.value)
+                      }
+                      placeholder="Écrire un message..."
+                    />
+                    <Button
+                      type="submit"
+                      className="bg-primary hover:bg-primary/90"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </form>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-center text-muted-foreground p-8">
+                <div>
+                  <Sparkles className="mx-auto h-7 w-7 mb-3 text-primary/60" />
+                  <p className="text-sm">Sélectionnez une conversation</p>
+                  <p className="text-xs mt-1">
+                    Vous retrouverez ici toutes vos discussions.
+                  </p>
+                </div>
               </div>
-            </form>
-          </>
-        ) : (
-          <div className="text-center p-8 text-muted-foreground">
-            <p>Sélectionnez une conversation</p>
-          </div>
-        )}
+            )}
+          </section>
+        </div>
       </div>
     </main>
   );

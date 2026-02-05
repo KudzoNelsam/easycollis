@@ -1,0 +1,20 @@
+{
+  "currency": "FCFA",
+  "clientPacks": [
+    { "id": "client-pass", "price": 500, "durationDays": 30, "popular": true }
+  ],
+  "gpPacks": [
+    {
+      "id": "gp-pass",
+      "name": "PASS GP",
+      "price": 1000,
+      "durationDays": 30,
+      "features": [
+        "Voyages illimités",
+        "Messagerie illimitée",
+        "Badge vérifié"
+      ],
+      "popular": true
+    }
+  ]
+}

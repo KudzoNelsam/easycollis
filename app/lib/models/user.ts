@@ -6,7 +6,7 @@ export interface User {
   name: string
   role: UserRole
   city?: string
-  passBalance: number
+  passValidUntil?: string
   createdAt: Date
 }
 

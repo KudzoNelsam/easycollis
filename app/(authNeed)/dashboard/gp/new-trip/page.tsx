@@ -27,6 +27,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { CITIES_DEPART, CITIES_DESTINATION } from "@/lib/data";
 import { ArrowLeft, Loader2, Package } from "lucide-react";
+import { isPassActive } from "@/lib/utils/pass";
 
 export default function NewTripPage() {
   const router = useRouter();
@@ -50,6 +51,15 @@ export default function NewTripPage() {
       router.push("/login");
     }
 
+    if (!authLoading && user?.role === "gp" && !isPassActive(user.passValidUntil)) {
+      toast({
+        title: "PASS requis",
+        description: "Un PASS GP actif est nécessaire pour publier des voyages.",
+        variant: "destructive",
+      });
+      router.push("/pass/gp");
+    }
+
     if (editId && user) {
       const savedTrips = JSON.parse(
         localStorage.getItem(`easycollis_trips_${user.id}`) || "[]"
@@ -64,7 +74,7 @@ export default function NewTripPage() {
         setDescription(tripToEdit.description || "");
       }
     }
-  }, [user, authLoading, router, editId]);
+  }, [user, authLoading, router, editId, toast]);
 
   if (authLoading || !user) {
     return (

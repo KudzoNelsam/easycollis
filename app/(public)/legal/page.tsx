@@ -112,8 +112,9 @@ export default function LegalPage() {
                 </h3>
                 <p>
                   Le PASS Client permet de contacter un transporteur GP via la
-                  messagerie interne. Chaque PASS permet d'initier une
-                  conversation avec un GP. Les PASS ne sont pas remboursables.
+                  messagerie interne. Un PASS actif est valable 30 jours et
+                  permet de contacter un nombre illimité de GP. Les PASS ne
+                  sont pas remboursables.
                 </p>
 
                 <h3 className="text-foreground font-semibold mt-4">
@@ -121,8 +122,9 @@ export default function LegalPage() {
                 </h3>
                 <p>
                   Le PASS GP permet aux transporteurs de publier leurs voyages
-                  et d'être visibles sur la plateforme. Les formules varient
-                  selon le nombre de voyages pouvant être publiés.
+                  et d'être visibles sur la plateforme. Un PASS GP actif est
+                  valable 30 jours et permet de publier un nombre illimité de
+                  voyages.
                 </p>
 
                 <h3 className="text-foreground font-semibold mt-4">

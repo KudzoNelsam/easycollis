@@ -20,6 +20,7 @@ import { Badge } from "../../components/ui/badge";
 import { getGP } from "@/lib/services/gpService";
 import type { GP } from "@/lib/models";
 import { useAuth } from "@/lib/auth-context";
+import { isPassActive } from "@/lib/utils/pass";
 import { useToast } from "@/hooks/use-toast";
 import {
   MapPin,
@@ -37,7 +38,7 @@ export default function GPDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { user, updatePassBalance } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [gp, setGp] = useState<GP | undefined>(undefined);
   const [loading, setLoading] = useState(true);
@@ -92,20 +93,19 @@ export default function GPDetailPage() {
       return;
     }
 
-    if (user.passBalance < 1) {
+    if (!isPassActive(user.passValidUntil)) {
       toast({
         title: "PASS insuffisant",
-        description: "Vous devez acheter un PASS pour contacter ce GP.",
+        description:
+          "Vous devez avoir un PASS actif (30 jours) pour contacter ce GP.",
         variant: "destructive",
       });
       router.push("/pass/client");
       return;
     }
 
-    // Déduire 1 PASS et rediriger vers la messagerie
-    updatePassBalance(-1);
     toast({
-      title: "PASS utilisé",
+      title: "PASS actif",
       description: "Vous pouvez maintenant contacter ce GP.",
     });
     const returnTo = searchParams.toString()
@@ -207,7 +207,7 @@ export default function GPDetailPage() {
                     Intéressé par ce GP ?
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Utilisez 1 PASS pour contacter {gp.name} via notre
+                    Utilisez votre PASS actif pour contacter {gp.name} via notre
                     messagerie sécurisée.
                   </p>
                 </div>
@@ -217,14 +217,14 @@ export default function GPDetailPage() {
                   onClick={handleContact}
                 >
                   <MessageSquare className="mr-2 h-5 w-5" />
-                  Contacter (1 PASS)
+                  Contacter
                 </Button>
               </div>
               {!user && (
                 <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
                   <CreditCard className="h-3 w-3" />
-                  Vous devez être connecté et avoir des PASS pour contacter un
-                  GP.
+                  Vous devez être connecté et avoir un PASS actif pour contacter
+                  un GP.
                 </p>
               )}
             </div>

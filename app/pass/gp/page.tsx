@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Navbar } from "../../components/navbar";
@@ -24,45 +24,17 @@ import {
   Eye,
   MessageSquare,
 } from "lucide-react";
-
-const GP_PASS_OPTIONS = [
-  {
-    name: "Starter",
-    price: 1000,
-    features: ["1 voyage publié", "Visibilité standard", "Messagerie incluse"],
-    voyages: 1,
-    popular: false,
-  },
-  {
-    name: "Pro",
-    price: 2500,
-    features: [
-      "5 voyages publiés",
-      "Visibilité prioritaire",
-      "Messagerie illimitée",
-      "Badge vérifié",
-    ],
-    voyages: 5,
-    popular: true,
-  },
-  {
-    name: "Business",
-    price: 5000,
-    features: [
-      "Voyages illimités",
-      "Top visibilité",
-      "Messagerie illimitée",
-      "Badge vérifié",
-      "Support prioritaire",
-    ],
-    voyages: 99,
-    popular: false,
-  },
-];
+import {
+  createPendingPayment,
+  getCurrency,
+  listGPPacks,
+} from "@/lib/services/paymentsService";
+import type { GPPack } from "@/lib/models";
+import { formatPassDate, isPassActive } from "@/lib/utils/pass";
 
 export default function GPPassPage() {
   const router = useRouter();
-  const { user, updatePassBalance, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -79,13 +51,67 @@ export default function GPPassPage() {
     );
   }
 
-  const handlePurchase = (option: (typeof GP_PASS_OPTIONS)[0]) => {
-    // Simulate payment (mock)
-    updatePassBalance(option.voyages);
-    toast({
-      title: "Achat réussi !",
-      description: `Vous avez acheté le pack ${option.name} pour ${option.price} FCFA.`,
+  const currency = getCurrency();
+  const packs = listGPPacks();
+
+  const [isPaying, setIsPaying] = useState(false);
+
+  const handlePurchase = (option: GPPack) => {
+    if (!user) return;
+    setIsPaying(true);
+    const ref = `pass-gp-${Date.now()}`;
+    createPendingPayment({
+      ref,
+      userId: user.id,
+      role: "gp",
+      packId: option.id,
+      amount: option.price,
+      currency,
+      durationDays: option.durationDays,
     });
+
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    fetch("/api/paytech/request-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: option.price,
+        currency,
+        ref,
+        itemName: "PASS GP",
+        email: user.email,
+        successUrl: `${baseUrl}/payment/success?ref=${encodeURIComponent(ref)}`,
+        cancelUrl: `${baseUrl}/payment/cancel?ref=${encodeURIComponent(ref)}`,
+        ipnUrl: `${baseUrl}/api/paytech/ipn`,
+        customField: JSON.stringify({
+          role: "gp",
+          durationDays: option.durationDays,
+          userId: user.id,
+        }),
+      }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok || data?.ok === false) {
+          const details = data?.details?.message || data?.error || "Paiement refusé";
+          throw new Error(details);
+        }
+        const url = data?.data?.redirect_url;
+        if (url) {
+          window.location.href = url;
+          return;
+        }
+        throw new Error("redirect_url missing");
+      })
+      .catch(() => {
+        setIsPaying(false);
+        toast({
+          title: "Erreur paiement",
+          description: "Impossible de lancer le paiement PayTech.",
+          variant: "destructive",
+        });
+      });
   };
 
   return (
@@ -112,15 +138,17 @@ export default function GPPassPage() {
             <div className="inline-flex items-center gap-2 mt-4 bg-accent/10 px-4 py-2 rounded-full">
               <CreditCard className="h-5 w-5 text-accent" />
               <span className="font-semibold">
-                Solde actuel: {user.passBalance} PASS
+                {isPassActive(user.passValidUntil)
+                  ? `Pass actif jusqu'au ${formatPassDate(user.passValidUntil)}`
+                  : "Aucun pass actif"}
               </span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {GP_PASS_OPTIONS.map((option) => (
+            {packs.map((option) => (
               <Card
-                key={option.name}
+                key={option.id}
                 className={
                   option.popular ? "border-accent shadow-lg scale-105" : ""
                 }
@@ -136,8 +164,11 @@ export default function GPPassPage() {
                     <span className="text-3xl font-bold text-foreground">
                       {option.price}
                     </span>
-                    <span className="text-muted-foreground"> FCFA</span>
+                    <span className="text-muted-foreground"> {currency}</span>
                   </CardDescription>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Valable {option.durationDays} jours
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <ul className="space-y-3">
@@ -152,8 +183,9 @@ export default function GPPassPage() {
                     className={`w-full ${option.popular ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}`}
                     variant={option.popular ? "default" : "outline"}
                     onClick={() => handlePurchase(option)}
+                    disabled={isPaying}
                   >
-                    Choisir {option.name}
+                    {isPaying ? "Redirection..." : `Choisir ${option.name}`}
                   </Button>
                 </CardContent>
               </Card>

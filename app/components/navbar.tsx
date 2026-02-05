@@ -22,6 +22,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useState } from "react";
+import { formatPassDate, isPassActive } from "@/lib/utils/pass";
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -83,7 +84,9 @@ export function Navbar() {
                   <div className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5">
                     <CreditCard className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium">
-                      {user.passBalance} PASS
+                      {isPassActive(user.passValidUntil)
+                        ? `PASS actif · ${formatPassDate(user.passValidUntil)}`
+                        : "PASS inactif"}
                     </span>
                   </div>
                 )}
@@ -119,7 +122,7 @@ export function Navbar() {
                           }
                         >
                           <CreditCard className="mr-2 h-4 w-4" />
-                          Acheter des PASS
+                          Acheter un PASS
                         </Link>
                       </DropdownMenuItem>
                     )}
@@ -207,7 +210,9 @@ export function Navbar() {
                   <div className="flex items-center gap-2 py-2">
                     <CreditCard className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium">
-                      {user.passBalance} PASS
+                      {isPassActive(user.passValidUntil)
+                        ? `PASS actif · ${formatPassDate(user.passValidUntil)}`
+                        : "PASS inactif"}
                     </span>
                   </div>
                 )}

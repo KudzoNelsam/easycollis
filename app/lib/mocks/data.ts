@@ -1,235 +1,48 @@
-import { Message, Conversation, GP, Trip, FollowedTrip } from "@/lib/models"
+import type { Message, Conversation, GP, Trip, FollowedTrip } from "@/lib/models"
+import db from "@/lib/mocks/database.json"
 
-export const MOCK_GPS: GP[] = [
-  {
-    id: "gp-1",
-    name: "Transport Koné",
-    email: "gp@test.com",
-    city: "Abidjan",
-    destination: "Paris",
-    departureDate: "2025-01-15",
-    availableKg: 50,
-    description:
-      "Transport fiable et rapide vers la France. 10 ans d'expérience dans le transport de colis. Livraison garantie sous 7 jours.",
-    rating: 4.8,
-    reviewCount: 156,
-    verified: true,
-    createdAt: "2023-06-10",
-  },
-  {
-    id: "gp-2",
-    name: "Express Dakar",
-    email: "gp2@test.com",
-    city: "Dakar",
-    destination: "Marseille",
-    departureDate: "2025-01-20",
-    availableKg: 30,
-    description:
-      "Spécialiste du transport Sénégal-France. Service premium avec suivi en temps réel. Assurance incluse.",
-    rating: 4.5,
-    reviewCount: 89,
-    verified: true,
-    createdAt: "2023-09-05",
-  },
-  {
-    id: "gp-3",
-    name: "Bamako Express",
-    email: "bamako@test.com",
-    city: "Bamako",
-    destination: "Lyon",
-    departureDate: "2025-01-18",
-    availableKg: 40,
-    description: "Transport Mali-France. Expérience de 5 ans. Colis livrés en parfait état.",
-    rating: 4.3,
-    reviewCount: 45,
-    verified: true,
-    createdAt: "2024-01-20",
-  },
-  {
-    id: "gp-4",
-    name: "Conakry Transit",
-    email: "conakry@test.com",
-    city: "Conakry",
-    destination: "Paris",
-    departureDate: "2025-01-25",
-    availableKg: 60,
-    description: "Service de transport Guinée-France. Prix compétitifs et service de qualité.",
-    rating: 4.6,
-    reviewCount: 72,
-    verified: true,
-    createdAt: "2023-11-15",
-  },
-  {
-    id: "gp-5",
-    name: "Douala Cargo",
-    email: "douala@test.com",
-    city: "Douala",
-    destination: "Bruxelles",
-    departureDate: "2025-01-22",
-    availableKg: 45,
-    description: "Spécialiste Cameroun-Belgique. Service professionnel depuis 2015.",
-    rating: 4.7,
-    reviewCount: 98,
-    verified: true,
-    createdAt: "2023-08-01",
-  },
-  {
-    id: "gp-6",
-    name: "Lomé Transport",
-    email: "lome@test.com",
-    city: "Lomé",
-    destination: "Paris",
-    departureDate: "2025-02-01",
-    availableKg: 35,
-    description: "Transport Togo-France. Fiable et ponctuel. Emballage soigné.",
-    rating: 4.4,
-    reviewCount: 56,
-    verified: false,
-    createdAt: "2024-03-10",
-  },
-]
+export const MOCK_GPS: GP[] = db.gps as GP[]
 
-export const POPULAR_DESTINATIONS = [
-  { city: "Paris", country: "France", flag: "🇫🇷", gpCount: 45 },
-  { city: "Marseille", country: "France", flag: "🇫🇷", gpCount: 28 },
-  { city: "Lyon", country: "France", flag: "🇫🇷", gpCount: 22 },
-  { city: "Bruxelles", country: "Belgique", flag: "🇧🇪", gpCount: 18 },
-  { city: "Montréal", country: "Canada", flag: "🇨🇦", gpCount: 15 },
-  { city: "New York", country: "USA", flag: "🇺🇸", gpCount: 12 },
-]
+const destinationCatalog = new Map(
+  db.destinations.map((dest) => [dest.city.toLowerCase(), dest])
+)
 
-export const MOCK_CONVERSATIONS: Conversation[] = [
-  {
-    id: "conv-1",
-    participants: [
-      { id: "client-1", name: "Marie Dupont", role: "client" },
-      { id: "gp-1", name: "Transport Koné", role: "gp" },
-    ],
-    lastMessage: "Bonjour, j'aimerais envoyer un colis de 5kg vers Paris.",
-    lastMessageTime: new Date("2025-01-08T10:30:00"),
-    unreadCount: 1,
-  },
-  {
-    id: "conv-2",
-    participants: [
-      { id: "client-1", name: "Marie Dupont", role: "client" },
-      { id: "gp-2", name: "Express Dakar", role: "gp" },
-    ],
-    lastMessage: "Merci pour votre réponse !",
-    lastMessageTime: new Date("2025-01-07T15:45:00"),
-    unreadCount: 0,
-  },
-]
+const destinationCounts = db.trips.reduce((acc, trip) => {
+  const key = trip.destination.toLowerCase()
+  acc.set(key, (acc.get(key) || 0) + 1)
+  return acc
+}, new Map<string, number>())
 
-export const MOCK_MESSAGES = [
-  {
-    id: "msg-1",
-    conversationId: "conv-1",
-    senderId: "client-1",
-    senderName: "Marie Dupont",
-    receiverId: "gp-1",
-    receiverName: "Transport Koné",
-    content: "Bonjour, j'aimerais envoyer un colis de 5kg vers Paris.",
-    timestamp: new Date("2025-01-08T10:30:00"),
-    read: false,
-  },
-  {
-    id: "msg-2",
-    conversationId: "conv-2",
-    senderId: "gp-2",
-    senderName: "Express Dakar",
-    receiverId: "client-1",
-    receiverName: "Marie Dupont",
-    content: "Oui, nous avons de la place. Quand souhaitez-vous envoyer ?",
-    timestamp: new Date("2025-01-07T15:40:00"),
-    read: true,
-  },
-  {
-    id: "msg-3",
-    conversationId: "conv-2",
-    senderId: "client-1",
-    senderName: "Marie Dupont",
-    receiverId: "gp-2",
-    receiverName: "Express Dakar",
-    content: "Merci pour votre réponse !",
-    timestamp: new Date("2025-01-07T15:45:00"),
-    read: true,
-  },
-]
+export const ALL_DESTINATIONS = Array.from(destinationCounts.entries())
+  .map(([cityKey, count]) => {
+    const match = destinationCatalog.get(cityKey)
+    return {
+      city: match?.city ?? cityKey,
+      country: match?.country ?? "—",
+      flag: match?.flag ?? "🏳️",
+      gpCount: count,
+    }
+  })
+  .sort((a, b) => b.gpCount - a.gpCount || a.city.localeCompare(b.city))
 
-export const CITIES_DEPART = [
-  { value: "abidjan", label: "Abidjan", country: "Côte d'Ivoire" },
-  { value: "dakar", label: "Dakar", country: "Sénégal" },
-  { value: "bamako", label: "Bamako", country: "Mali" },
-  { value: "conakry", label: "Conakry", country: "Guinée" },
-  { value: "douala", label: "Douala", country: "Cameroun" },
-  { value: "lome", label: "Lomé", country: "Togo" },
-  { value: "cotonou", label: "Cotonou", country: "Bénin" },
-  { value: "ouagadougou", label: "Ouagadougou", country: "Burkina Faso" },
-  { value: "niamey", label: "Niamey", country: "Niger" },
-  { value: "libreville", label: "Libreville", country: "Gabon" },
-]
+export const POPULAR_DESTINATIONS = ALL_DESTINATIONS.slice(0, 6)
 
-export const CITIES_DESTINATION = [
-  { value: "paris", label: "Paris", country: "France" },
-  { value: "marseille", label: "Marseille", country: "France" },
-  { value: "lyon", label: "Lyon", country: "France" },
-  { value: "bordeaux", label: "Bordeaux", country: "France" },
-  { value: "toulouse", label: "Toulouse", country: "France" },
-  { value: "bruxelles", label: "Bruxelles", country: "Belgique" },
-  { value: "montreal", label: "Montréal", country: "Canada" },
-  { value: "new-york", label: "New York", country: "USA" },
-  { value: "londres", label: "Londres", country: "Royaume-Uni" },
-  { value: "geneve", label: "Genève", country: "Suisse" },
-]
+export const MOCK_CONVERSATIONS: Conversation[] = db.conversations.map((c) => ({
+  ...c,
+  lastMessageTime: new Date(c.lastMessageTime),
+})) as Conversation[]
 
-export const MOCK_TRIPS: Trip[] = [
-  {
-    id: "trip-1",
-    gpId: "gp-1",
-    gpName: "Transport Koné",
-    destination: "Paris",
-    departureDate: "2025-01-15",
-    availableKg: 50,
-    pricePerKg: 2.5,
-    description: "Transport fiable et rapide vers la France. 10 ans d'expérience dans le transport de colis.",
-    status: "active",
-  },
-  {
-    id: "trip-2",
-    gpId: "gp-2",
-    gpName: "Express Dakar",
-    destination: "Marseille",
-    departureDate: "2025-01-20",
-    availableKg: 30,
-    pricePerKg: 3.0,
-    description: "Spécialiste du transport Sénégal-France. Service premium avec suivi en temps réel.",
-    status: "active",
-  },
-  {
-    id: "trip-3",
-    gpId: "gp-3",
-    gpName: "Bamako Express",
-    destination: "Lyon",
-    departureDate: "2025-01-18",
-    availableKg: 40,
-    pricePerKg: 2.8,
-    description: "Transport Mali-France. Expérience de 5 ans. Colis livrés en parfait état.",
-    status: "active",
-  },
-]
+export const MOCK_MESSAGES: Message[] = db.messages.map((m) => ({
+  ...m,
+  timestamp: new Date(m.timestamp),
+})) as Message[]
 
-export const MOCK_FOLLOWED_TRIPS: FollowedTrip[] = [
-  {
-    id: "follow-1",
-    userId: "client-1",
-    tripId: "trip-1",
-    createdAt: new Date("2025-01-09T12:00:00"),
-  },
-  {
-    id: "follow-2",
-    userId: "client-1",
-    tripId: "trip-3",
-    createdAt: new Date("2025-01-10T09:00:00"),
-  },
-]
+export const CITIES_DEPART = db.citiesDepart
+export const CITIES_DESTINATION = db.citiesDestination
+
+export const MOCK_TRIPS: Trip[] = db.trips as Trip[]
+
+export const MOCK_FOLLOWED_TRIPS: FollowedTrip[] = db.followedTrips.map((f) => ({
+  ...f,
+  createdAt: new Date(f.createdAt),
+})) as FollowedTrip[]
