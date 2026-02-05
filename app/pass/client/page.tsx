@@ -36,6 +36,7 @@ export default function ClientPassPage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
+  const [isPaying, setIsPaying] = useState(false);
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "client")) {
@@ -43,18 +44,8 @@ export default function ClientPassPage() {
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Package className="h-8 w-8 animate-pulse text-primary" />
-      </div>
-    );
-  }
-
   const currency = getCurrency();
   const packs = listClientPacks();
-
-  const [isPaying, setIsPaying] = useState(false);
 
   const handlePurchase = (pack: ClientPack) => {
     if (!user) return;
@@ -113,6 +104,13 @@ export default function ClientPassPage() {
         });
       });
   };
+  if (isLoading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Package className="h-8 w-8 animate-pulse text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
